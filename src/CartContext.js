@@ -1,22 +1,8 @@
-// when we need data and functions that are necessary through the different part of the applications 
-
 import { createContext, createContext, useState } from "react";
-import { productsArray } from "./productsStore";
+import { productsArray, getProductData } from "./productsStore";
 
-// ====== BLUE PRINT OF CONTEXT =======
-/**
- * 1. context
- * 2. provider -> gives the react app access to all the things in your context
- */
-
-//initilise the context by creating an object 
-/**
- * 1. We dont define the functions right inside the create context , this context is saying that we can define a function for getproductquantity
- * when we create the getproductquantity function , we can pass that to the provider 
- */
 
 // giving our application access to the context , we will export
-
 export const createContext = createContext({
     items:[],
     getProductQuantity:() => {},
@@ -39,7 +25,70 @@ export function CartProvider({children}){
 
         return quantity;
     }
-    
+
+    function addOneToCart(id){
+        const quantity = getProductQuantity(id);
+
+        if(quantity === 0){// no objects is there in the cart
+            // setting the cart products to the array of elements , with the previous products plus the new object with the quantity 1
+            setCartProducts(
+                [
+                    ...cartProducts, // take all the objects in the cart and put them in front of the array
+                    {
+                        id:id,
+                        quantity:1
+                    }
+                ]
+            )
+        }else{ //product is in cart
+            setCartProducts(
+
+                // we are going to go through every single product of the cart products
+                cartProducts.map(
+                    product => product.id === id ? {...product,quantity:product.quantity+1} : product
+                )
+            )
+        }
+    }
+
+    function removeOneFromCart(id){
+
+        const quantity = getProductQuantity(id);
+
+        if(quantity == 1){
+            deleteAllFromCart(id);
+        }else{
+            setCartProducts(
+
+                // we are going to go through every single product of the cart products
+                cartProducts.map(
+                    product => product.id === id ? {...product,quantity:product.quantity-1} : product
+                )
+            )
+        }
+
+    }
+
+    // delete all the quantity of certain ID
+    // filter -> start with [] if an object meets a condition , add the object to the array
+    function deleteAllFromCart(id){
+        setCartProducts(
+            // add all the products to the array except the product we want to delete
+            cartProducts => cartProducts.filter(
+                currentProduct => {
+                    return currentProduct.id != id;
+                }
+            )
+        )
+    }
+
+    function getTotalCost(){
+        let totalCost = 0;
+        cartProducts.map((cartItem) => {
+            const productData = getProductData(cartItem.id)
+            totalCost += (productData.price * cartItem.quantity)
+        })
+    }
     const contextValue = {
         items:cartProducts,
         getProductQuantity,
@@ -55,3 +104,4 @@ export function CartProvider({children}){
     )
 
 }
+export default CartProvider;
