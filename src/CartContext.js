@@ -1,9 +1,9 @@
-import { createContext, createContext, useState } from "react";
+import { createContext, useState } from "react";
 import { productsArray, getProductData } from "./productsStore";
 
 
 // giving our application access to the context , we will export
-export const createContext = createContext({
+export const CartContext = createContext({
     items:[],
     getProductQuantity:() => {},
     addOneToCart:() => {},
@@ -55,7 +55,7 @@ export function CartProvider({children}){
 
         const quantity = getProductQuantity(id);
 
-        if(quantity == 1){
+        if(quantity === 1){
             deleteAllFromCart(id);
         }else{
             setCartProducts(
@@ -76,7 +76,7 @@ export function CartProvider({children}){
             // add all the products to the array except the product we want to delete
             cartProducts => cartProducts.filter(
                 currentProduct => {
-                    return currentProduct.id != id;
+                    return currentProduct.id !== id;
                 }
             )
         )
@@ -98,9 +98,9 @@ export function CartProvider({children}){
         getTotalCost
     }
     return(
-        <CartProvider value={contextValue}>
+        <CartContext.Provider value={contextValue}>
             {children}
-        </CartProvider>
+        </CartContext.Provider>
     )
 
 }
